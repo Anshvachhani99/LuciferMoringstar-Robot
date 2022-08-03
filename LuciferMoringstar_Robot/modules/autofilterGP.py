@@ -31,47 +31,41 @@ from LuciferMoringstar_Robot import temp, PICS, MOVIE_TEXT as REQUEST_TEXT, FILT
 from LuciferMoringstar_Robot.functions import get_size, split_list, get_settings
 from database.autofilter_mdb import get_filter_results
 
-async def group_filters(client, update):
+async def group_filters(client, message):
     if re.findall("((^\/|^,|^!|^\.|^[\U0001F600-\U000E007F]).*)", update.text):
         return
-    if 2 < len(update.text) < 100:    
+    if 1 < len(message.text) < 100:    
         btn = []
-        search = update.text
-        settings = await get_settings(update.chat.id)
-        MOVIE_TEXT = settings["template"]
+        search = message.text
+        mo_tech_yt = f">✪ {search} </b><b>𝙐𝙥𝙡𝙤𝙖𝙙𝙚𝙙 𝘽𝙮 ☟</b>\n<b>@ReQuest_Movies_V3</b>\n<b>⚜ 𝙁𝙤𝙪𝙣𝙙𝙚𝙙 𝙍𝙚𝙨𝙪𝙡𝙩𝙨 𝙁𝙤𝙧 𝙔𝙤𝙪𝙧</b>\n<b>𝙍𝙚𝙦𝙪𝙚𝙨𝙩 💚</b>"
+        nyva=BOT.get("username")
+        if not nyva:
+            botusername=await client.get_me()
+            nyva=botusername.username
+            BOT["username"]=nyva
         files = await get_filter_results(query=search)
-        if not files:
-            if settings["spellmode"]:
-                try:
-                    reply = search.replace(" ", '+')  
-                    buttons = [[ InlineKeyboardButton("🔍 𝚂𝙴𝙰𝚁𝙲𝙷 𝚃𝙾 𝙶𝙾𝙾𝙶𝙻𝙴 🔎", url=f"https://www.google.com/search?q={reply}") ],[ InlineKeyboardButton("× 𝙲𝙻𝙾𝚂𝙴 ×", callback_data="close") ]]
-                    spell = await update.reply_text(text=settings["spelltext"].format(query=search, first_name=update.from_user.first_name, last_name=update.from_user.last_name, title=update.chat.title, mention=update.from_user.mention), disable_web_page_preview=True, reply_markup=InlineKeyboardMarkup(buttons))           
-                    await asyncio.sleep(60)
-                    await spell.delete()
-                except:
-                    pass
-            return
         if files:
             for file in files:
                 file_id = file.file_id
-                filesize = f"[{get_size(file.file_size)}]"
-                filename = f"{file.file_name}"
-                
-                if settings["button"]:
-                    btn.append([InlineKeyboardButton(f"[{filesize}] {filename}", callback_data=f'luciferGP#{file_id}')])
-                else:                    
-                    btn.append([InlineKeyboardButton(f"{filesize}", callback_data=f'luciferGP#{file_id}'),
-                                InlineKeyboardButton(f"{filename}", callback_data=f'luciferGP#{file_id}')])
+                filename = f"[{get_size(file.file_size)}] {file.file_name}"
+                btn.append(
+                        [InlineKeyboardButton(text=f"{filename}", url=f"https://telegram.dog/{nyva}?start=pr0fess0r_99_-_-_-_{file_id}")]
+                        )
         else:
+            one_button = InlineKeyboardMarkup([[InlineKeyboardButton("✆ ʀᴇǫᴜᴇsᴛ ᴛᴏ ᴀᴅᴍɪɴ", url="http://t.me/AakankshaV2bot")]])
+            Ansh = await message.reply("<b>⚜ 𝐓𝐡𝐢𝐬 𝐌𝐨𝐯𝐢𝐞 𝐍𝐨𝐭 𝐅𝐨𝐮𝐧𝐝 ⚜/b>\n\n<b>✪ ᴘʟᴇᴀsᴇ ᴄʜᴇᴄᴋ ʏᴏᴜʀ sᴘᴇʟʟɪɴɢ ᴏɴ</b>\n<b>ɢᴏᴏɢʟᴇ & ᴛʀʏ ᴀɢᴀɪɴ ✅</b>\n\n<b>☟ ʀᴇǫᴜᴇsᴛ ᴛᴏ ᴀᴅᴍɪɴs ғᴏʀ ᴜᴘʟᴏᴀᴅɪɴɢ ❤️‍🔥</b>", reply_markup = one_button)
+            await asyncio.sleep(8)
+            await k.delete()
+            await message.delete()
             return
 
         if not btn:
             return
 
-        if len(btn) > temp.filterBtns: 
-            btns = list(split_list(btn, temp.filterBtns)) 
-            keyword = f"{update.chat.id}-{update.id}"
-            temp.BUTTONS[keyword] = {
+        if len(btn) > 10: 
+            btns = list(split_list(btn, 10)) 
+            keyword = f"{message.chat.id}-{message.message_id}"
+            BUTTONS[keyword] = {
                 "total" : len(btns),
                 "buttons" : btns
             }
@@ -85,24 +79,24 @@ async def group_filters(client, update):
             try:             
                 if settings["photo"]:
                     try:
-                        remove = await update.reply_photo(photo=random.choice(PICS), caption=MOVIE_TEXT.format(mention=update.from_user.mention, query=search, greeting=None, group_name = f"[{update.chat.title}](t.me/{update.chat.username})" or f"[{update.chat.title}](t.me/{update.from_user.username})"), reply_markup=InlineKeyboardMarkup(buttons))
+                        remove = await update.reply_photo(photo=random.choice(PICS), caption=mo_tech_yt.format(mention=update.from_user.mention, query=search, greeting=None, group_name = f"[{update.chat.title}](t.me/{update.chat.username})" or f"[{update.chat.title}](t.me/{update.from_user.username})"), reply_markup=InlineKeyboardMarkup(buttons))
                         await asyncio.sleep(FILTER_DEL_SECOND)
                         await remove.delete()
                     except:
-                        remove = await update.reply_photo(photo=random.choice(PICS), caption=MOVIE_TEXT.format(mention=update.from_user.mention, query=search, greeting=None, group_name = f"[{update.chat.title}](t.me/{update.chat.username})" or f"[{update.chat.title}](t.me/{update.from_user.username})"), reply_markup=InlineKeyboardMarkup(buttons))
+                        remove = await update.reply_photo(photo=random.choice(PICS), caption=mo_tech_yt.format(mention=update.from_user.mention, query=search, greeting=None, group_name = f"[{update.chat.title}](t.me/{update.chat.username})" or f"[{update.chat.title}](t.me/{update.from_user.username})"), reply_markup=InlineKeyboardMarkup(buttons))
                         await asyncio.sleep(FILTER_DEL_SECOND)
                         await remove.delete()
                 else:
                     try:
-                        remove = await update.reply_photo(photo=random.choice(PICS), caption=MOVIE_TEXT.format(mention=update.from_user.mention, query=search, greeting=None, group_name = f"[{update.chat.title}](t.me/{update.chat.username})" or f"[{update.chat.title}](t.me/{update.from_user.username})"), reply_markup=InlineKeyboardMarkup(buttons))
+                        remove = await update.reply_photo(photo=random.choice(PICS), caption=mo_tech_yt.format(mention=update.from_user.mention, query=search, greeting=None, group_name = f"[{update.chat.title}](t.me/{update.chat.username})" or f"[{update.chat.title}](t.me/{update.from_user.username})"), reply_markup=InlineKeyboardMarkup(buttons))
                         await asyncio.sleep(FILTER_DEL_SECOND)
                         await remove.delete()
                     except:
-                        remove = await update.reply_photo(photo=random.choice(PICS), caption=MOVIE_TEXT.format(mention=update.from_user.mention, query=search, greeting=None, group_name = f"[{update.chat.title}](t.me/{update.chat.username})" or f"[{update.chat.title}](t.me/{update.from_user.username})"), reply_markup=InlineKeyboardMarkup(buttons))
+                        remove = await update.reply_photo(photo=random.choice(PICS), caption=mo_tech_yt.format(mention=update.from_user.mention, query=search, greeting=None, group_name = f"[{update.chat.title}](t.me/{update.chat.username})" or f"[{update.chat.title}](t.me/{update.from_user.username})"), reply_markup=InlineKeyboardMarkup(buttons))
                         await asyncio.sleep(FILTER_DEL_SECOND)
                         await remove.delete()
             except:
-                remove = await update.reply_photo(photo=random.choice(PICS), caption=MOVIE_TEXT.format(mention=update.from_user.mention, query=search, greeting=None, group_name = f"[{update.chat.title}](t.me/{update.chat.username})" or f"[{update.chat.title}](t.me/{update.from_user.username})"), reply_markup=InlineKeyboardMarkup(buttons))
+                remove = await update.reply_photo(photo=random.choice(PICS), caption=mo_tech_yt.format(mention=update.from_user.mention, query=search, greeting=None, group_name = f"[{update.chat.title}](t.me/{update.chat.username})" or f"[{update.chat.title}](t.me/{update.from_user.username})"), reply_markup=InlineKeyboardMarkup(buttons))
                 await asyncio.sleep(FILTER_DEL_SECOND)
                 await remove.delete()
             return
@@ -119,45 +113,45 @@ async def group_filters(client, update):
         try:             
             if settings["photo"]:
                 try:
-                    remove = await update.reply_photo(photo=random.choice(PICS), caption=MOVIE_TEXT.format(mention=update.from_user.mention, query=search, greeting=None, group_name = f"[{update.chat.title}](t.me/{update.chat.username})" or f"[{update.chat.title}](t.me/{update.from_user.username})"), reply_markup=InlineKeyboardMarkup(buttons))
+                    remove = await message.reply_photo(photo=random.choice(PICS), caption=mo_tech_yt.format(mention=message.from_user.mention, query=search, greeting=None, group_name = f"[{message.chat.title}](t.me/{message.chat.username})" or f"[{message.chat.title}](t.me/{message.from_user.username})"), reply_markup=InlineKeyboardMarkup(buttons))
                     await asyncio.sleep(FILTER_DEL_SECOND)
                     await remove.delete()
                 except:
-                    remove = await update.reply_photo(photo=random.choice(PICS), caption=MOVIE_TEXT.format(mention=update.from_user.mention, query=search, greeting=None, group_name = f"[{update.chat.title}](t.me/{update.chat.username})" or f"[{update.chat.title}](t.me/{update.from_user.username})"), reply_markup=InlineKeyboardMarkup(buttons))
+                    remove = await message.reply_photo(photo=random.choice(PICS), caption=mo_tech_yt.format(mention=message.from_user.mention, query=search, greeting=None, group_name = f"[{message.chat.title}](t.me/{message.chat.username})" or f"[{message.chat.title}](t.me/{message.from_user.username})"), reply_markup=InlineKeyboardMarkup(buttons))
                     await asyncio.sleep(FILTER_DEL_SECOND)
                     await remove.delete()
             else:
                 try:
-                    remove = await update.reply_photo(photo=random.choice(PICS), caption=MOVIE_TEXT.format(mention=update.from_user.mention, query=search, greeting=None, group_name = f"[{update.chat.title}](t.me/{update.chat.username})" or f"[{update.chat.title}](t.me/{update.from_user.username})"), reply_markup=InlineKeyboardMarkup(buttons))
+                    remove = await message.reply_photo(photo=random.choice(PICS), caption=mo_tech_yt.format(mention=message.from_user.mention, query=search, greeting=None, group_name = f"[{message.chat.title}](t.me/{message.chat.username})" or f"[{message.chat.title}](t.me/{mesaage.from_user.username})"), reply_markup=InlineKeyboardMarkup(buttons))
                     await asyncio.sleep(FILTER_DEL_SECOND)
                     await remove.delete()
                 except :
-                    remove = await update.reply_photo(photo=random.choice(PICS), caption=MOVIE_TEXT.format(mention=update.from_user.mention, query=search, greeting=None, group_name = f"[{update.chat.title}](t.me/{update.chat.username})" or f"[{update.chat.title}](t.me/{update.from_user.username})"), reply_markup=InlineKeyboardMarkup(buttons))
+                    remove = await message.reply_photo(photo=random.choice(PICS), caption=mo_tech_yt.format(mention=message.from_user.mention, query=search, greeting=None, group_name = f"[{message.chat.title}](t.me/{message.chat.username})" or f"[{message.chat.title}](t.me/{message.from_user.username})"), reply_markup=InlineKeyboardMarkup(buttons))
                     await asyncio.sleep(FILTER_DEL_SECOND)
                     await remove.delete()
         except:
-            remove = await update.reply_photo(photo=random.choice(PICS), caption=MOVIE_TEXT.format(mention=update.from_user.mention, query=search, greeting=None, group_name = f"[{update.chat.title}](t.me/{update.chat.username})" or f"[{update.chat.title}](t.me/{update.from_user.username})"), reply_markup=InlineKeyboardMarkup(buttons))
+            remove = await message.reply_photo(photo=random.choice(PICS), caption=mo_tech_yt.format(mention=message.from_user.mention, query=search, greeting=None, group_name = f"[{message.chat.title}](t.me/{message.chat.username})" or f"[{message.chat.title}](t.me/{message.from_user.username})"), reply_markup=InlineKeyboardMarkup(buttons))
             await asyncio.sleep(FILTER_DEL_SECOND)
             await remove.delete()
 
 @Client.on_message(filters.private & filters.command('pmautofilter'))
-async def pmautofilter(client, message):        
+async def pmautofilter(client, msg):        
     try:
-        cmd=message.command[1] 
+        cmd=msg.command[1] 
         if cmd == "on":   
-            if message.chat.id in temp.PMAF_OFF:
-                temp.PMAF_OFF.remove(message.chat.id)
-                await message.reply_text("𝙿𝙼 𝙰𝚄𝚃𝙾𝙵𝙸𝙻𝚃𝙴𝚁 𝚃𝚄𝚁𝙽𝙴𝙳 𝙾𝙽..!")  
+            if msg.chat.id in temp.PMAF_OFF:
+                temp.PMAF_OFF.remove(msg.chat.id)
+                await msg.reply_text("𝙿𝙼 𝙰𝚄𝚃𝙾𝙵𝙸𝙻𝚃𝙴𝚁 𝚃𝚄𝚁𝙽𝙴𝙳 𝙾𝙽..!")  
             else:
-                await message.reply_text("𝙿𝙼 𝙰𝚄𝚃𝙾𝙵𝙸𝙻𝚃𝙴𝚁 𝚃𝚄𝚁𝙽𝙴𝙳 𝙾𝙽..!")                           
+                await msg.reply_text("𝙿𝙼 𝙰𝚄𝚃𝙾𝙵𝙸𝙻𝚃𝙴𝚁 𝚃𝚄𝚁𝙽𝙴𝙳 𝙾𝙽..!")                           
         elif cmd == "off": 
-            if message.chat.id in temp.PMAF_OFF:
-                await message.reply_text("𝙿𝙼 𝙰𝚄𝚃𝙾𝙵𝙸𝙻𝚃𝙴𝚁 𝚃𝚄𝚁𝙽𝙴𝙳 𝙾𝙵𝙵..!")                                             
+            if msg.chat.id in temp.PMAF_OFF:
+                await msg.reply_text("𝙿𝙼 𝙰𝚄𝚃𝙾𝙵𝙸𝙻𝚃𝙴𝚁 𝚃𝚄𝚁𝙽𝙴𝙳 𝙾𝙵𝙵..!")                                             
             else:
-                temp.PMAF_OFF.append(message.chat.id)
-                await message.reply_text("𝙿𝙼 𝙰𝚄𝚃𝙾𝙵𝙸𝙻𝚃𝙴𝚁 𝚃𝚄𝚁𝙽𝙴𝙳 𝙾𝙵𝙵..!")
+                temp.PMAF_OFF.append(msg.chat.id)
+                await msg.reply_text("𝙿𝙼 𝙰𝚄𝚃𝙾𝙵𝙸𝙻𝚃𝙴𝚁 𝚃𝚄𝚁𝙽𝙴𝙳 𝙾𝙵𝙵..!")
         else:
-            await message.reply_text("𝚄𝚂𝙴 𝙲𝙾𝚁𝚁𝙴𝙲𝚃 𝙵𝙾𝚁𝙼𝙰𝚃.!\n\n • /pmautofilter on\n • /pmautofilter off")    
+            await msg.reply_text("𝚄𝚂𝙴 𝙲𝙾𝚁𝚁𝙴𝙲𝚃 𝙵𝙾𝚁𝙼𝙰𝚃.!\n\n • /pmautofilter on\n • /pmautofilter off")    
     except:
         pass
 
