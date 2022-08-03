@@ -42,17 +42,11 @@ async def pm_filters(client, update):
         if files:
             for file in files:
                 file_id = file.file_id
-                filesize = f"[{get_size(file.file_size)}]"
-                filename = f"{file.file_name}"
-                if SINGLE_BUTTON:
-                    btn.append(
-                        [InlineKeyboardButton(text=f"{filename}", callback_data=f"luciferPM#{file_id}")]
+                filename = f"[{get_size(file.file_size)}] {file.file_name}"
+                btn.append(
+                        [InlineKeyboardButton(text=f"{filename}",callback_data=f"pr0fess0r_99#{file_id}")]
                     )
-                else:
-                    btn.append(
-                        [InlineKeyboardButton(text=f"{filesize}", callback_data=f"luciferPM#{file_id}"),
-                         InlineKeyboardButton(text=f"{filename}", callback_data=f"luciferPM#{file_id}")]
-                    )
+          
         else:
             return
 
